@@ -25,32 +25,28 @@ app.add_middleware(
 def root():
     return {"message": "Working"}
 
-
 # sample link : http://127.0.0.1:8000/youtubedownload?link=https://www.youtube.com/watch?v=dQw4w9WgXcQ
-
 
 @app.get("/youtubedownload")
 async def youtube_download(request: Request, link: str):
 
     yt = YouTube(link)
-    print("\n linkreceived : " + link , " Time :- ", datetime.datetime.now())
     video = []
     audio = []
-    videoStreams = yt.streams.filter(progressive=True)
+    videoStreams = yt.streams.filter(progressive=True,file_extension='mp4')
     audioStreams  = yt.streams.filter(only_audio=True)
 
     for e in videoStreams :
-        video.append(e.url)
+        temp = {"resuloution": e.resolution , "fps" : e.fps , "link" : e.url , "size" : e.filesize_mb} 
+        video.append(temp)
 
     for e in audioStreams :
-        audio.append(e.url)
+        temp = { "link" : e.url, "bitrate" : e.abr , "size" : e.filesize_mb} 
+        audio.append(temp)
 
     embed_link = link.replace("watch?v=","embed/")
     title = yt.title
     thumb = yt.thumbnail_url
 
     data = {"video": video ,"audio": audio, "embed" : embed_link ,"pic":thumb, "title": title}
-    # data = { "embed" : embed_link ,"pic":thumb, "title": title, "audio": audio}
-
-    # return {"message": context} 
     return JSONResponse(content=data)
