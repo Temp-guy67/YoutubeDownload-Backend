@@ -11,6 +11,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://192.168.0.110:3000",
+    "http://172.24.125.101:3000"
 ]
 
 app.add_middleware(
@@ -23,7 +25,8 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "Working"}
+    version = "version : " + "3"; 
+    return {"message": version}
 
 # sample link : http://127.0.0.1:8000/youtubedownload?link=https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
@@ -49,4 +52,6 @@ async def youtube_download(request: Request, link: str):
     thumb = yt.thumbnail_url
 
     data = {"video": video ,"audio": audio, "embed" : embed_link ,"pic":thumb, "title": title}
-    return JSONResponse(content=data)
+    response = JSONResponse(content=data)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
