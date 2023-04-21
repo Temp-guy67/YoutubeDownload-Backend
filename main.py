@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Request
 from pytube import YouTube
-import datetime
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from logger import logger
 
 # Create a FastAPI instance
 app = FastAPI()
 
 
 origins = [
+    "http://0.0.0.0",
     "http://localhost",
     "http://localhost:3000",
     "http://192.168.0.110:3000",
@@ -26,12 +27,14 @@ app.add_middleware(
 @app.get("/")
 def root():
     version = "version : " + "3"; 
+    logger.info("Request received for /")
     return {"message": version}
 
 # sample link : http://127.0.0.1:8000/youtubedownload?link=https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 @app.get("/youtubedownload")
 async def youtube_download(request: Request, link: str):
+    logger.info(f"Request received for /items/{link}")
 
     yt = YouTube(link)
     video = []
@@ -54,4 +57,5 @@ async def youtube_download(request: Request, link: str):
     data = {"video": video ,"audio": audio, "embed" : embed_link ,"pic":thumb, "title": title}
     response = JSONResponse(content=data)
     response.headers["Access-Control-Allow-Origin"] = "*"
+    logger.info(f" Response sending for {data[title]} " , data)
     return response
